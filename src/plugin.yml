@@ -1,0 +1,7 @@
+name: JPerms
+main: com.johnymuffin.jperms.beta.JohnyPerms
+author: RhysB
+version: 1.0.0
+commands:
+  jperms:
+    description: Commands for manipulating permissions.

@@ -1,0 +1,13 @@
+User Commands
+/jperms user (username/uuid) group set (group) - Set a specific group
+/jperms user (username/uuid) group remove (group) - Remove a players group thus giving them the default group
+/jperms user (username/uuid) groups - List users groups
+/jperms user (username/uuid) perm list - List user specific perms
+/jperms user (username/uuid) perm add (permission) - Add a permission node to a player
+/jperms user (username/uuid) perm remove (permission) - Remove a permission node from a player
+Group Perms
+/jperms group list - List groups on the server
+/jperms group (group name) perm list - List a groups permissions
+/jperms group (group name) inheritance - List groups the main group inherits from
+/jperms group (group name) perm add (permission) - Add a permission node to a group
+/jperms group (group name) perm remove (permission) - Add a permission node to a group
