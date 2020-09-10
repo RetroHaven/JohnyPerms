@@ -1,4 +1,4 @@
-package com.johnymuffin.jperms.beta;
+package com.johnymuffin.jperms.beta.util;
 
 public class PermissionNode {
     private final String permission;

@@ -1,11 +1,16 @@
 package com.johnymuffin.jperms.beta;
 
+import com.johnymuffin.jperms.beta.util.PermissionNode;
+import com.johnymuffin.jperms.beta.util.Util;
 import com.johnymuffin.jperms.core.models.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+
+import static com.johnymuffin.jperms.beta.util.Util.hasPermissionOnMap;
 
 public class User implements PermissionsUser, PermissionsObject, PermissionsAesthetics, SavableObject {
     private UUID uuid;
@@ -49,6 +54,12 @@ public class User implements PermissionsUser, PermissionsObject, PermissionsAest
         //Override group perms with user perms
         for (String permission : this.permissions.keySet()) {
             temp.put(permission, this.permissions.get(permission));
+        }
+        //Convert appropriate wildcard permissions to the appropriate perms
+        for (Map.Entry<String, Boolean> perm : plugin.getAllPluginPerms().entrySet()) {
+            if (hasPermissionOnMap(perm.getKey(), this.permissions)) {
+                temp.put(perm.getKey(), perm.getValue());
+            }
         }
 
         return temp;

@@ -1,8 +1,8 @@
 package com.johnymuffin.jperms.beta.config;
 
-import com.johnymuffin.jperms.beta.Group;
+import com.johnymuffin.jperms.beta.objects.Group;
 import com.johnymuffin.jperms.beta.JohnyPerms;
-import com.johnymuffin.jperms.beta.User;
+import com.johnymuffin.jperms.beta.objects.User;
 import com.johnymuffin.jperms.core.models.PermissionsGroup;
 import com.johnymuffin.jperms.core.models.PermissionsUser;
 import org.json.simple.JSONArray;
@@ -21,12 +21,14 @@ public class PermissionsConfig {
     protected File configFile;
     protected JSONObject jsonConfig;
     private JohnyPerms plugin;
+    private boolean isNew = false;
 
     public PermissionsConfig(JohnyPerms plugin) {
         this.configFile = new File(plugin.getDataFolder(), "permissions.json");
         this.plugin = plugin;
         //Create directory
         if (!this.configFile.exists()) {
+            isNew = true;
             this.configFile.getParentFile().mkdirs();
             jsonConfig = new JSONObject();
             saveFile();
@@ -69,10 +71,10 @@ public class PermissionsConfig {
             }
         }
         tmp.put("permissions", tmp2);
-        if (permissionsUser.getPrefix() != null) {
+        if (permissionsUser.getPrefix() != null && !permissionsUser.getPrefix().isEmpty()) {
             tmp.put("prefix", permissionsUser.getPrefix());
         }
-        if (permissionsUser.getSuffix() != null) {
+        if (permissionsUser.getSuffix() != null && !permissionsUser.getSuffix().isEmpty()) {
             tmp.put("suffix", permissionsUser.getSuffix());
         }
         JSONObject tmp3 = getPlayers();
@@ -104,13 +106,20 @@ public class PermissionsConfig {
             }
         }
         tmp.put("permissions", tmp2);
-        if (permissionsGroup.getPrefix() != null) {
+        if (permissionsGroup.getPrefix() != null && !permissionsGroup.getPrefix().isEmpty()) {
             tmp.put("prefix", permissionsGroup.getPrefix());
         }
-        if (permissionsGroup.getSuffix() != null) {
+        if (permissionsGroup.getSuffix() != null && !permissionsGroup.getSuffix().isEmpty()) {
             tmp.put("suffix", permissionsGroup.getSuffix());
         }
         tmp.put("default", permissionsGroup.isDefaultGroup());
+
+        JSONArray tmp4 = new JSONArray();
+        for (String inheritance : permissionsGroup.getRawInheritanceGroups()) {
+            if (inheritance != null && !inheritance.isEmpty())
+                tmp4.add(inheritance.toLowerCase());
+        }
+        tmp.put("inheritance", tmp4);
         JSONObject tmp3 = getGroups();
         tmp3.put(permissionsGroup.getName().toLowerCase(), tmp);
         saveGroups(tmp3);
@@ -163,4 +172,7 @@ public class PermissionsConfig {
         }
     }
 
+    public boolean isNew() {
+        return isNew;
+    }
 }

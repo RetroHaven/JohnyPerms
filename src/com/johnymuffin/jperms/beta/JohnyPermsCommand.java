@@ -10,7 +10,7 @@ import org.bukkit.command.CommandSender;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.johnymuffin.jperms.beta.Util.getUUIDFromUsername;
+import static com.johnymuffin.jperms.beta.util.Util.getUUIDFromUsername;
 
 public class JohnyPermsCommand implements CommandExecutor {
     private JohnyPerms plugin;

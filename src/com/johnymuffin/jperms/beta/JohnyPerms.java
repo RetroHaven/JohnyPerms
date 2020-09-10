@@ -2,18 +2,23 @@ package com.johnymuffin.jperms.beta;
 
 import com.johnymuffin.jperms.beta.config.JPermsLanguage;
 import com.johnymuffin.jperms.beta.config.PermissionsConfig;
+import com.johnymuffin.jperms.beta.objects.Group;
 import com.johnymuffin.jperms.core.models.PermissionsGroup;
 import com.johnymuffin.jperms.core.models.PermissionsUser;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class JohnyPerms extends JavaPlugin {
@@ -29,7 +34,8 @@ public class JohnyPerms extends JavaPlugin {
     private HashMap<String, PermissionsGroup> groups = new HashMap<>(); //Groups
     private HashMap<UUID, PermissionsUser> users = new HashMap<>(); //Users
     private HashMap<UUID, PermissionAttachment> attachments = new HashMap<>(); //Permissions Attachments
-    private PermissionsConfig permissionsConfig;
+    private PermissionsConfig permissionsConfig; //Plugin Perms Store
+    private HashMap<String, Boolean> allPluginPerms = new HashMap<>();
 
 
     @Override
@@ -43,6 +49,32 @@ public class JohnyPerms extends JavaPlugin {
         this.language = new JPermsLanguage(new File(plugin.getDataFolder(), "language.yml"));
         log.info("[" + pluginName + "] Loading Permissions Database.");
         this.permissionsConfig = new PermissionsConfig(plugin);
+        if (permissionsConfig.isNew()) {
+            log.info("[" + pluginName + "] Generating default group as it is first load.");
+            PermissionsGroup group = new Group(plugin, "default", new JSONObject());
+            group.setIsDefaultGroup(true);
+            group.setSaveStatus(true);
+            groups.put("default", group);
+        }
+//        plugin.logMessage(Level.INFO, "Importing PermissionsEX");
+//        PexImport pexImport = new PexImport(plugin);
+//        pexImport.importGroups();
+//        scanForDefault();
+//        try {
+//            pexImport.importPlayers();
+//        } catch (Exception exception) {
+//            exception.printStackTrace();
+//        }
+//        plugin.logMessage(Level.INFO, "Finished importing PermissionsEx");
+        log.info("[" + pluginName + "] Loading all permissions for wildcards.");
+        for (Plugin plugin : Bukkit.getServer().getPluginManager().getPlugins()) {
+            for (Permission permission : plugin.getDescription().getPermissions()) {
+                allPluginPerms.put(permission.getName(), true);
+                for (Map.Entry<String, Boolean> entry : permission.getChildren().entrySet()) {
+                    allPluginPerms.put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
         log.info("[" + pluginName + "] Registering Commands.");
         plugin.getCommand("jperms").setExecutor(new JohnyPermsCommand(plugin));
         log.info("[" + pluginName + "] Loading Groups.");
@@ -55,10 +87,8 @@ public class JohnyPerms extends JavaPlugin {
             }
             groups.put(groupName, group);
             log.info("[" + pluginName + "] Loaded group " + groupName);
-            if (group.isDefaultGroup()) {
-                this.defaultGroup = group;
-            }
         }
+        scanForDefault();
         if (this.defaultGroup == null) {
             log.info("[" + pluginName + "] Failed to find a default group, shutting down.");
             Bukkit.getServer().getPluginManager().disablePlugin(this);
@@ -66,11 +96,16 @@ public class JohnyPerms extends JavaPlugin {
         } else {
             log.info("[" + pluginName + "] Default group set to: " + this.defaultGroup.getName());
         }
+        log.info("[" + pluginName + "] Starting player listener.");
+        JohnyPermsListener johnyPermsListener = new JohnyPermsListener(plugin);
+        Bukkit.getServer().getPluginManager().registerEvents(johnyPermsListener, plugin);
 
 
         for (Player p : Bukkit.getServer().getOnlinePlayers()) {
             recalculatePlayer(p);
         }
+
+
     }
 
     @Override
@@ -100,6 +135,18 @@ public class JohnyPerms extends JavaPlugin {
 
     }
 
+    public void scanForDefault() {
+        for (String group : this.getGroups().keySet()) {
+            if (this.groups.get(group).isDefaultGroup()) {
+                this.defaultGroup = this.groups.get(group);
+            }
+        }
+    }
+
+    public void logMessage(Level level, String msg) {
+        log.log(level, "[" + pluginName + "] " + msg);
+    }
+
     public PermissionsUser getUser(UUID uuid) {
         if (users.containsKey(uuid)) return users.get(uuid);
         PermissionsUser user = this.permissionsConfig.getUser(uuid);
@@ -125,6 +172,14 @@ public class JohnyPerms extends JavaPlugin {
 
     public JPermsLanguage getLanguage() {
         return language;
+    }
+
+    public PermissionsConfig getPermissionsConfig() {
+        return permissionsConfig;
+    }
+
+    public HashMap<String, Boolean> getAllPluginPerms() {
+        return allPluginPerms;
     }
 
     public void recalculatePlayer(Player p) {
