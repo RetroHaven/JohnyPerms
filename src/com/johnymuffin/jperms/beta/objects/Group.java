@@ -123,10 +123,8 @@ public class Group implements PermissionsGroup, PermissionsObject, PermissionsAe
     @Override
     public HashMap<String, Boolean> getPermissions(boolean deepSearch) {
         if (!deepSearch) {
-            System.out.println("Light search on " + groupName);
             return (HashMap<String, Boolean>) permissions.clone();
         }
-        System.out.println("Deep search on " + groupName);
         HashMap<String, Boolean> temp = new HashMap<>();
         //Get inherited permissions
         for (PermissionsGroup group : this.getInheritanceGroups()) {
