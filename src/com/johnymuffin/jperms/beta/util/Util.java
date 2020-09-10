@@ -1,4 +1,4 @@
-package com.johnymuffin.jperms.beta;
+package com.johnymuffin.jperms.beta.util;
 
 import com.projectposeidon.api.PoseidonUUID;
 import com.projectposeidon.api.UUIDType;

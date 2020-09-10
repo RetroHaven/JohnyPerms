@@ -1,9 +1,12 @@
-package com.johnymuffin.jperms.beta;
+package com.johnymuffin.jperms.beta.importer;
 
+import com.johnymuffin.jperms.beta.objects.Group;
+import com.johnymuffin.jperms.beta.JohnyPerms;
+import com.johnymuffin.jperms.beta.util.UUIDFetcher2;
+import com.johnymuffin.jperms.beta.util.Util;
 import com.johnymuffin.jperms.core.models.PermissionsGroup;
 import com.johnymuffin.jperms.core.models.PermissionsUser;
 import com.projectposeidon.api.PoseidonUUID;
-import com.projectposeidon.evilmidget38.UUIDFetcher;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.json.simple.JSONArray;

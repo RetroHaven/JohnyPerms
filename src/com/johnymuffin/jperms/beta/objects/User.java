@@ -1,5 +1,6 @@
-package com.johnymuffin.jperms.beta;
+package com.johnymuffin.jperms.beta.objects;
 
+import com.johnymuffin.jperms.beta.JohnyPerms;
 import com.johnymuffin.jperms.beta.util.PermissionNode;
 import com.johnymuffin.jperms.beta.util.Util;
 import com.johnymuffin.jperms.core.models.*;
