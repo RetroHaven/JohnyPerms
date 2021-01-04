@@ -142,7 +142,7 @@ public class Group implements PermissionsGroup, PermissionsObject, PermissionsAe
         for (Map.Entry<String, Boolean> perm : plugin.getAllPluginPerms().entrySet()) {
             if (hasPermissionOnMap(perm.getKey(), this.permissions)) {
                 temp.put(perm.getKey(), perm.getValue());
-                plugin.logMessage(Level.INFO, perm.getKey() + " has been added to " + groupName + " through a wildcard.");
+//                plugin.logMessage(Level.INFO, perm.getKey() + " has been added to " + groupName + " through a wildcard.");
             }
         }
 
@@ -168,14 +168,25 @@ public class Group implements PermissionsGroup, PermissionsObject, PermissionsAe
         addPermission(permissionNode.getPermission(), permissionNode.isValue());
     }
 
-    public void removePermission(String permission, boolean value) {
-        permissions.remove(permission, value);
+    public boolean removePermission(String permission, boolean value) {
+        boolean removal = permissions.remove(permission, value);
         isModified = true;
+        return removal;
     }
 
-    public void removePermission(String permission) {
+    public boolean removePermission(String permission) {
         PermissionNode permissionNode = Util.convertPermission(permission);
-        removePermission(permissionNode.getPermission(), permissionNode.isValue());
+        return removePermission(permissionNode.getPermission(), permissionNode.isValue());
+    }
+
+
+    public boolean hasPermission(String permission) {
+        return hasPermission(permission, true);
+    }
+
+
+    public boolean hasPermission(String permission, boolean deepSearch) {
+        return hasPermissionOnMap(permission, this.getPermissions(deepSearch));
     }
 
     public void saveObject() {

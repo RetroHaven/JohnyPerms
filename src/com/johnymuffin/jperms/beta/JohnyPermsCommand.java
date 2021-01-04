@@ -1,6 +1,7 @@
 package com.johnymuffin.jperms.beta;
 
 import com.johnymuffin.jperms.beta.config.JPermsLanguage;
+import com.johnymuffin.jperms.core.models.PermissionsGroup;
 import com.johnymuffin.jperms.core.models.PermissionsUser;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -132,7 +133,14 @@ public class JohnyPermsCommand implements CommandExecutor {
             commandSender.sendMessage(lang.getMessage("no_permission"));
             return true;
         }
-
+        if (strings.length >= 5) {
+            String permission = strings[4];
+            PermissionsUser permissionsUser = plugin.getUser(user);
+            permissionsUser.removePermission(permission);
+            commandSender.sendMessage(lang.getMessage("generic_action_completed"));
+            return true;
+        }
+        commandSender.sendMessage(lang.getMessage("jperms_user_perm_remove_use"));
         return false;
     }
 
@@ -141,7 +149,22 @@ public class JohnyPermsCommand implements CommandExecutor {
             commandSender.sendMessage(lang.getMessage("no_permission"));
             return true;
         }
-        return false;
+
+        if (strings.length == 3 || strings.length == 4 || !strings[3].equalsIgnoreCase("set")) {
+            commandSender.sendMessage(lang.getMessage("jperms_user_group_general_use"));
+            commandSender.sendMessage(ChatColor.GRAY + "Group: " + plugin.getUser(user).getGroup().getName());
+            return true;
+        }
+
+        PermissionsGroup permissionsGroup = plugin.getGroups().get(strings[4].toLowerCase());
+        if (permissionsGroup == null) {
+            commandSender.sendMessage(lang.getMessage("jperms_group_general_unknown"));
+            return true;
+        }
+
+        plugin.getUser(user).setGroup(permissionsGroup);
+        commandSender.sendMessage(lang.getMessage("generic_action_completed"));
+        return true;
     }
 
     private boolean groupCommand(CommandSender commandSender, Command command, String s, String[] strings) {
@@ -149,7 +172,47 @@ public class JohnyPermsCommand implements CommandExecutor {
             commandSender.sendMessage(lang.getMessage("no_permission"));
             return true;
         }
-        return false;
+
+        if (strings.length == 1) {
+            commandSender.sendMessage(lang.getMessage("jperms_group_general_use"));
+            return true;
+        }
+
+        PermissionsGroup permissionsGroup = null;
+        if (strings.length > 1) {
+            permissionsGroup = plugin.getGroups().get(strings[1]);
+            if (permissionsGroup == null) {
+                commandSender.sendMessage(lang.getMessage("jperms_group_general_unknown"));
+                return true;
+            }
+        }
+
+        if (strings.length == 2) {
+            commandSender.sendMessage(ChatColor.BLUE + "Selected Group: " + permissionsGroup.getName());
+            return true;
+        }
+
+        String subCommand = strings[2];
+        if (subCommand.equalsIgnoreCase("inheritance"))
+            return groupInheritanceCommand(commandSender, command, s, strings, permissionsGroup);
+
+
+        commandSender.sendMessage(lang.getMessage("jperms_group_general_use"));
+        return true;
+    }
+
+    private boolean groupInheritanceCommand(CommandSender commandSender, Command command, String s, String[] strings, PermissionsGroup group) {
+        if (!isAuthorized(commandSender, "johnyperms.jperms.group.inheritance")) {
+            commandSender.sendMessage(lang.getMessage("no_permission"));
+            return true;
+        }
+
+        commandSender.sendMessage(ChatColor.GRAY + "Inheritance for: " + group.getName());
+        for (int i = 0; i < group.getInheritanceGroups().length; i++) {
+            commandSender.sendMessage(ChatColor.GRAY + String.valueOf(i + 1) + " " + ChatColor.BLUE + group.getInheritanceGroups()[i].getName());
+        }
+
+        return true;
     }
 
     private boolean pluginCommand(CommandSender commandSender, Command command, String s, String[] strings) {

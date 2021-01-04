@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.johnymuffin.jperms.beta.util.Util.convertPermission;
 import static com.johnymuffin.jperms.beta.util.Util.hasPermissionOnMap;
 
 public class User implements PermissionsUser, PermissionsObject, PermissionsAesthetics, SavableObject {
@@ -82,24 +83,39 @@ public class User implements PermissionsUser, PermissionsObject, PermissionsAest
         return false;
     }
 
+    public boolean hasPermission(String permission, boolean deepSearch) {
+        throw new RuntimeException("Not implemented yet");
+    }
+
+    public boolean hasPermissionSomehow(String permission, boolean deepSearch) {
+        //TODO: These methods need to be sorted out, hasPermission() only supports wildcards for registered perms, and hasPermissionSomehow() supports any wildcards.
+        //TODO: A cache needs to be implemented so checks don't need to be run everytime.
+//        PermissionNode permissionNode = convertPermission(permission);
+//        if (!(plugin.getAllPluginPerms().containsKey(permissionNode.getPermission()) && plugin.getAllPluginPerms().get(permissionNode.getPermission()) == permissionNode.isValue())) {
+//            plugin.getAllPluginPerms().put(permissionNode.getPermission(), permissionNode.isValue());
+//        }
+        return hasPermissionOnMap(permission, this.getPermissions(deepSearch));
+    }
+
     public void addPermission(String permission, boolean value) {
         permissions.put(permission, value);
         isModified = true;
     }
 
     public void addPermission(String permission) {
-        PermissionNode permissionNode = Util.convertPermission(permission);
+        PermissionNode permissionNode = convertPermission(permission);
         addPermission(permissionNode.getPermission(), permissionNode.isValue());
     }
 
-    public void removePermission(String permission, boolean value) {
-        permissions.remove(permission, value);
+    public boolean removePermission(String permission, boolean value) {
+        boolean removed = permissions.remove(permission, value);
         isModified = true;
+        return removed;
     }
 
-    public void removePermission(String permission) {
-        PermissionNode permissionNode = Util.convertPermission(permission);
-        removePermission(permissionNode.getPermission(), permissionNode.isValue());
+    public boolean removePermission(String permission) {
+        PermissionNode permissionNode = convertPermission(permission);
+        return removePermission(permissionNode.getPermission(), permissionNode.isValue());
     }
 
     public String getPrefix() {

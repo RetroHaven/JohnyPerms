@@ -1,7 +1,7 @@
 package com.johnymuffin.jperms.beta.importer;
 
-import com.johnymuffin.jperms.beta.objects.Group;
 import com.johnymuffin.jperms.beta.JohnyPerms;
+import com.johnymuffin.jperms.beta.objects.Group;
 import com.johnymuffin.jperms.beta.util.UUIDFetcher2;
 import com.johnymuffin.jperms.beta.util.Util;
 import com.johnymuffin.jperms.core.models.PermissionsGroup;
@@ -30,6 +30,7 @@ public class PexImport {
 
 
     public Map<String, UUID> fetchUUIDs() throws Exception {
+        plugin.logMessage(Level.INFO, "Fetching UUIDs for all users, this could take awhile.");
         PermissionManager permissionManager = PermissionsEx.getPermissionManager();
         int count = 0;
         String[] usernames = new String[permissionManager.getUsers().length];
@@ -39,7 +40,6 @@ public class PexImport {
             count = count + 1;
             tmp.add(pexUser.getName());
         }
-        System.out.println(tmp.toJSONString());
         UUIDFetcher2 uuidFetcher = new UUIDFetcher2(Arrays.asList(usernames), true);
         return uuidFetcher.call();
 
@@ -94,7 +94,7 @@ public class PexImport {
                 if (uuidMap.containsKey(pexUser.getName())) {
                     uuid = uuidMap.get(pexUser.getName());
                 } else {
-                    plugin.logMessage(Level.WARNING, "Using offline UUID for player " + pexUser.getName());
+                    plugin.logMessage(Level.WARNING, "Using Poseidon " + PoseidonUUID.getPlayerUUIDCacheStatus(pexUser.getName()).name() + " UUID for player " + pexUser.getName());
                     uuid = PoseidonUUID.getPlayerGracefulUUID(pexUser.getName());
                 }
             }

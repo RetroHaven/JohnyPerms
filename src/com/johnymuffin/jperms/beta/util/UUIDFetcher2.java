@@ -54,7 +54,7 @@ public class UUIDFetcher2 implements Callable<Map<String, UUID>> {
                 String name = (String) jsonProfile.get("name");
                 UUID uuid = UUIDFetcher2.getUUID(id);
                 uuidMap.put(name, uuid);
-                System.out.println(name + ": " + uuid);
+
             }
             if (rateLimiting) {
                 Thread.sleep(1500L);

@@ -10,8 +10,12 @@ public interface PermissionsObject {
 
     public void addPermission(String permission);
 
-    public void removePermission(String permission, boolean value);
+    public boolean removePermission(String permission, boolean value);
 
-    public void removePermission(String permission);
+    public boolean removePermission(String permission);
+
+    public boolean hasPermission(String permission);
+
+    public boolean hasPermission(String permission, boolean deepSearch);
 
 }

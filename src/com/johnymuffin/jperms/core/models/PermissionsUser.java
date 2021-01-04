@@ -15,5 +15,7 @@ public interface PermissionsUser extends PermissionsAesthetics, PermissionsObjec
 
     public HashMap<String, Boolean> getPermissions(boolean deepSearch);
 
+    public boolean hasPermissionSomehow(String permission, boolean deepSearch);
+
 
 }

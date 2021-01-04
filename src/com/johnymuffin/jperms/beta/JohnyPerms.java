@@ -2,7 +2,9 @@ package com.johnymuffin.jperms.beta;
 
 import com.johnymuffin.jperms.beta.config.JPermsLanguage;
 import com.johnymuffin.jperms.beta.config.PermissionsConfig;
+import com.johnymuffin.jperms.beta.importer.PexImport;
 import com.johnymuffin.jperms.beta.objects.Group;
+import com.johnymuffin.jperms.beta.override.JPPermissibleBase;
 import com.johnymuffin.jperms.core.models.PermissionsGroup;
 import com.johnymuffin.jperms.core.models.PermissionsUser;
 import org.bukkit.Bukkit;
@@ -15,11 +17,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.johnymuffin.jperms.beta.util.Util.hasPermissionOnMap;
 
 public class JohnyPerms extends JavaPlugin {
     //Basic Plugin Info
@@ -35,7 +37,10 @@ public class JohnyPerms extends JavaPlugin {
     private HashMap<UUID, PermissionsUser> users = new HashMap<>(); //Users
     private HashMap<UUID, PermissionAttachment> attachments = new HashMap<>(); //Permissions Attachments
     private PermissionsConfig permissionsConfig; //Plugin Perms Store
-    private HashMap<String, Boolean> allPluginPerms = new HashMap<>();
+    private HashMap<String, Boolean> allPluginPerms = new HashMap<>(); //All registered permissions
+    private HashMap<String, Boolean> detectedPerms = new HashMap<>(); //All used, however, unregistered permissions
+    private JohnyPermsAPI johnyPermsAPI;
+    private HashMap<UUID, JPPermissibleBase> playerInjections = new HashMap<>(); //All playerInjections
 
 
     @Override
@@ -56,25 +61,9 @@ public class JohnyPerms extends JavaPlugin {
             group.setSaveStatus(true);
             groups.put("default", group);
         }
-//        plugin.logMessage(Level.INFO, "Importing PermissionsEX");
-//        PexImport pexImport = new PexImport(plugin);
-//        pexImport.importGroups();
-//        scanForDefault();
-//        try {
-//            pexImport.importPlayers();
-//        } catch (Exception exception) {
-//            exception.printStackTrace();
-//        }
-//        plugin.logMessage(Level.INFO, "Finished importing PermissionsEx");
-        log.info("[" + pluginName + "] Loading all permissions for wildcards.");
-        for (Plugin plugin : Bukkit.getServer().getPluginManager().getPlugins()) {
-            for (Permission permission : plugin.getDescription().getPermissions()) {
-                allPluginPerms.put(permission.getName(), true);
-                for (Map.Entry<String, Boolean> entry : permission.getChildren().entrySet()) {
-                    allPluginPerms.put(entry.getKey(), entry.getValue());
-                }
-            }
-        }
+        //Find all possible permissions registered
+        calculateAllPermissions();
+
         log.info("[" + pluginName + "] Registering Commands.");
         plugin.getCommand("jperms").setExecutor(new JohnyPermsCommand(plugin));
         log.info("[" + pluginName + "] Loading Groups.");
@@ -105,13 +94,87 @@ public class JohnyPerms extends JavaPlugin {
             recalculatePlayer(p);
         }
 
+        this.johnyPermsAPI = new JohnyPermsAPI(this.plugin);
+
+        //Run import code on start
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            calculateAllPermissions();
+
+
+//            for (String group : this.groups.keySet()) {
+//                removeDuplicatePermissions(this.groups.get(group), true);
+//            }
+
+            //Pex Import
+            if (Bukkit.getServer().getPluginManager().isPluginEnabled("PermissionsEx")) {
+                if (permissionsConfig.isNew()) {
+                    plugin.logMessage(Level.INFO, "Importing PermissionsEX");
+                    PexImport pexImport = new PexImport(plugin);
+                    getGroups().remove("default"); //Remove default group created by plugin on first start.
+                    pexImport.importGroups();
+                    scanForDefault();
+                    try {
+                        pexImport.importPlayers();
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+                    plugin.logMessage(Level.INFO, "Finished importing PermissionsEx");
+                }
+            }
+
+        }, 0L);
+
 
     }
+
+    public void calculateAllPermissions() {
+        log.info("[" + pluginName + "] Loading all permissions for wildcards.");
+        allPluginPerms = new HashMap<>();
+        for (Plugin plugin : Bukkit.getServer().getPluginManager().getPlugins()) {
+            for (Permission permission : plugin.getDescription().getPermissions()) {
+                allPluginPerms.put(permission.getName(), true);
+                for (Map.Entry<String, Boolean> entry : permission.getChildren().entrySet()) {
+                    allPluginPerms.put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
+    }
+
+    public void removeDuplicatePermissions(PermissionsGroup group, boolean log) {
+        //Remove duplicate permissions normally caused by a wildcard
+        HashMap<String, Boolean> mainGroupPerms = group.getPermissions(false);
+        Object[] rawPerms = mainGroupPerms.keySet().toArray();
+        for (int i = 0; i < mainGroupPerms.size(); i++) {
+            HashMap<String, Boolean> mainGroupPermsTemp = (HashMap<String, Boolean>) mainGroupPerms.clone();
+            mainGroupPermsTemp.remove(rawPerms[i]);
+            if (hasPermissionOnMap((String) rawPerms[i], mainGroupPermsTemp)) {
+                if (group.removePermission((String) rawPerms[i])) {
+                    logMessage(Level.INFO, "Removing permission " + rawPerms[i] + " as the group " + group.getName() + " already has the permission most likely through a wildcard.");
+
+                }
+            }
+        }
+
+        for (PermissionsGroup inheritanceGroup : group.getInheritanceGroups()) {
+            for (Map.Entry permission : inheritanceGroup.getPermissions(true).entrySet()) {
+                if (!(boolean) permission.getValue()) {
+                    continue;
+                }
+                if (group.hasPermission((String) permission.getKey(), false)) {
+                    if (group.removePermission((String) permission.getKey())) {
+                        logMessage(Level.INFO, "Permission: " + permission.getKey() + " removed from group " + group.getName() + " as the group inherits it from " + inheritanceGroup.getName());
+                    }
+
+                }
+            }
+        }
+    }
+
 
     @Override
     public void onDisable() {
         log.info("[" + pluginName + "] Plugin disabling.");
-
+        this.johnyPermsAPI = null;
         for (Map.Entry<String, PermissionsGroup> entry : this.groups.entrySet()) {
             if (entry.getValue().isSaving()) {
                 this.permissionsConfig.saveGroup(entry.getValue());
@@ -212,5 +275,18 @@ public class JohnyPerms extends JavaPlugin {
             }
             plugin.getAttachments().remove(player.getUniqueId());
         }
+    }
+
+    public static JohnyPermsAPI getJPermsAPI() {
+        Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("JPerms");
+        if (plugin == null || !(plugin instanceof JohnyPerms) || !plugin.isEnabled()) {
+            throw new RuntimeException("JohnyPerms API isn't valid, is the plugin actually started?");
+        }
+
+        return ((JohnyPerms) plugin).johnyPermsAPI;
+    }
+
+    public HashMap<UUID, JPPermissibleBase> getPlayerInjections() {
+        return playerInjections;
     }
 }

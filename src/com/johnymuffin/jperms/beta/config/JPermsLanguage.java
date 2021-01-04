@@ -27,9 +27,13 @@ public class JPermsLanguage extends Configuration {
         map.put("generic_action_completed", "&bYour action has been completed");
         //JPerms command
         map.put("jperms_main_general_use", "&cSorry, that is invalid. Try /jperms (user/group/plugin)");
-        map.put("jperms_user_general_use", "&cSorry, that is invalid. Try /jperms user (group/perm)");
-        map.put("jperms_user_perm_use", "&cSorry, that is invalid. Try /jperms user perm (add/list/remove)");
-        map.put("jperms_user_perm_add_use", "&cSorry, that is invalid. Try /jperms user perm add (perm)");
+        map.put("jperms_user_general_use", "&cSorry, that is invalid. Try /jperms user (username/uuid) (group/perm)");
+        map.put("jperms_user_perm_use", "&cSorry, that is invalid. Try /jperms user (username/uuid) perm (add/list/remove)");
+        map.put("jperms_user_perm_add_use", "&cSorry, that is invalid. Try /jperms user (username/uuid) perm add (perm)");
+        map.put("jperms_user_group_general_use", "&cSorry, that is invalid. Try /jperms user (username/uuid) group (set)");
+        map.put("jperms_group_general_use", "&cSorry, that is invalid. Try /jperms group (group) (list/perm/inheritance)");
+        map.put("jperms_group_general_unknown", "&cSorry, that group is unknown");
+        map.put("jperms_user_perm_remove_use", "&cSorry, that is invalid. Try /jperms user (username/uuid) perm remove (perm)");
 
     }
 

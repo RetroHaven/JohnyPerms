@@ -1,5 +1,7 @@
 package com.johnymuffin.jperms.beta;
 
+import com.johnymuffin.jperms.beta.override.JPInject;
+import com.johnymuffin.jperms.beta.override.JPPermissibleBase;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -21,6 +23,12 @@ public class JohnyPermsListener implements Listener {
             return;
         }
         plugin.recalculatePlayer(event.getPlayer());
+
+
+        //Override PermissibleBase
+        JPPermissibleBase jpPermissibleBase = new JPPermissibleBase(event.getPlayer(), event.getPlayer());
+        JPInject.inject(event.getPlayer(), jpPermissibleBase);
+        plugin.getPlayerInjections().put(event.getPlayer().getUniqueId(), jpPermissibleBase);
     }
 
     @EventHandler
@@ -34,6 +42,7 @@ public class JohnyPermsListener implements Listener {
     }
 
     public void playerLeave(Player player) {
+        plugin.getPlayerInjections().remove(player.getUniqueId());
         plugin.removePlayer(player);
     }
 
