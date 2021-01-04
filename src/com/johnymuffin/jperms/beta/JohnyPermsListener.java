@@ -26,9 +26,11 @@ public class JohnyPermsListener implements Listener {
 
 
         //Override PermissibleBase
-        JPPermissibleBase jpPermissibleBase = new JPPermissibleBase(event.getPlayer(), event.getPlayer());
-        JPInject.inject(event.getPlayer(), jpPermissibleBase);
-        plugin.getPlayerInjections().put(event.getPlayer().getUniqueId(), jpPermissibleBase);
+        if (plugin.getConfig().getConfigBoolean("super-perms-override.enable")) {
+            JPPermissibleBase jpPermissibleBase = new JPPermissibleBase(event.getPlayer(), event.getPlayer());
+            JPInject.inject(event.getPlayer(), jpPermissibleBase);
+            plugin.getPlayerInjections().put(event.getPlayer().getUniqueId(), jpPermissibleBase);
+        }
     }
 
     @EventHandler

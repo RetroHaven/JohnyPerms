@@ -1,5 +1,6 @@
 package com.johnymuffin.jperms.beta;
 
+import com.johnymuffin.jperms.beta.config.JPConfig;
 import com.johnymuffin.jperms.beta.config.JPermsLanguage;
 import com.johnymuffin.jperms.beta.config.PermissionsConfig;
 import com.johnymuffin.jperms.beta.importer.PexImport;
@@ -41,6 +42,7 @@ public class JohnyPerms extends JavaPlugin {
     private HashMap<String, Boolean> detectedPerms = new HashMap<>(); //All used, however, unregistered permissions
     private JohnyPermsAPI johnyPermsAPI;
     private HashMap<UUID, JPPermissibleBase> playerInjections = new HashMap<>(); //All playerInjections
+    private JPConfig config;
 
 
     @Override
@@ -52,6 +54,8 @@ public class JohnyPerms extends JavaPlugin {
         log.info("[" + pluginName + "] Is Loading, Version: " + pdf.getVersion());
         log.info("[" + pluginName + "] Loading Language File.");
         this.language = new JPermsLanguage(new File(plugin.getDataFolder(), "language.yml"));
+        log.info("[" + pluginName + "] Loading plugin settings.");
+        config = new JPConfig(new File(plugin.getDataFolder(), "config.yml"));
         log.info("[" + pluginName + "] Loading Permissions Database.");
         this.permissionsConfig = new PermissionsConfig(plugin);
         if (permissionsConfig.isNew()) {
@@ -288,5 +292,9 @@ public class JohnyPerms extends JavaPlugin {
 
     public HashMap<UUID, JPPermissibleBase> getPlayerInjections() {
         return playerInjections;
+    }
+
+    public JPConfig getConfig() {
+        return config;
     }
 }
