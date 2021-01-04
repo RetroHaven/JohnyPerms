@@ -21,6 +21,7 @@ public class JPConfig extends Configuration {
 
     private void write() {
         generateConfigOption("super-perms-override.enable", false);
+        generateConfigOption("import.permissionsex", true);
     }
 
 

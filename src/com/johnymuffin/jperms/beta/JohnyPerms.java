@@ -110,8 +110,10 @@ public class JohnyPerms extends JavaPlugin {
 //            }
 
             //Pex Import
-            if (Bukkit.getServer().getPluginManager().isPluginEnabled("PermissionsEx")) {
-                if (permissionsConfig.isNew()) {
+
+
+            if (config.getConfigBoolean("import.permissionsex")) {
+                if (Bukkit.getServer().getPluginManager().isPluginEnabled("PermissionsEx")) {
                     plugin.logMessage(Level.INFO, "Importing PermissionsEX");
                     PexImport pexImport = new PexImport(plugin);
                     getGroups().remove("default"); //Remove default group created by plugin on first start.
@@ -123,6 +125,9 @@ public class JohnyPerms extends JavaPlugin {
                         exception.printStackTrace();
                     }
                     plugin.logMessage(Level.INFO, "Finished importing PermissionsEx");
+                    
+                    config.setProperty("import.permissionsex", false);
+                    config.save();
                 }
             }
 
