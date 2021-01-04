@@ -56,6 +56,13 @@ public class JohnyPerms extends JavaPlugin {
         this.language = new JPermsLanguage(new File(plugin.getDataFolder(), "language.yml"));
         log.info("[" + pluginName + "] Loading plugin settings.");
         config = new JPConfig(new File(plugin.getDataFolder(), "config.yml"));
+        if (config.isNew()) {
+            logMessage(Level.INFO, "JohnyPerms has started for the first time. Please set your config appropriately and then proceed.");
+            Bukkit.shutdown();
+            config = new JPConfig(new File(plugin.getDataFolder(), "config.yml"));
+        }
+
+
         log.info("[" + pluginName + "] Loading Permissions Database.");
         this.permissionsConfig = new PermissionsConfig(plugin);
         if (permissionsConfig.isNew()) {
@@ -89,6 +96,7 @@ public class JohnyPerms extends JavaPlugin {
         } else {
             log.info("[" + pluginName + "] Default group set to: " + this.defaultGroup.getName());
         }
+        verifyInheritance();
         log.info("[" + pluginName + "] Starting player listener.");
         JohnyPermsListener johnyPermsListener = new JohnyPermsListener(plugin);
         Bukkit.getServer().getPluginManager().registerEvents(johnyPermsListener, plugin);
@@ -125,15 +133,19 @@ public class JohnyPerms extends JavaPlugin {
                         exception.printStackTrace();
                     }
                     plugin.logMessage(Level.INFO, "Finished importing PermissionsEx");
-                    
+                    verifyInheritance();
                     config.setProperty("import.permissionsex", false);
                     config.save();
                 }
             }
 
         }, 0L);
+    }
 
-
+    public void verifyInheritance() {
+        for (String group : this.groups.keySet()) {
+            this.groups.get(group).getInheritanceGroups();
+        }
     }
 
     public void calculateAllPermissions() {

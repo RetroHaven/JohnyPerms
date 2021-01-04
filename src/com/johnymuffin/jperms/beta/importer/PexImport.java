@@ -75,7 +75,7 @@ public class PexImport {
                     newParents[0] = old;
                     count = count + 1;
                 }
-                newParents[count] = groupName;
+                newParents[count] = groupName.toLowerCase();
                 jpermsGroup.setRawInheritanceGroups(newParents);
             }
             jpermsGroup.setSaveStatus(true);
@@ -94,7 +94,7 @@ public class PexImport {
                 if (uuidMap.containsKey(pexUser.getName())) {
                     uuid = uuidMap.get(pexUser.getName());
                 } else {
-                    plugin.logMessage(Level.WARNING, "Using Poseidon " + PoseidonUUID.getPlayerUUIDCacheStatus(pexUser.getName()).name() + " UUID for player " + pexUser.getName());
+                    plugin.logMessage(Level.WARNING, "Using Poseidon " + PoseidonUUID.getPlayerUUIDCacheStatus(pexUser.getName()).name() + " UUID for player " + pexUser.getName() + ": " + pexUser.getGroups()[0].getName());
                     uuid = PoseidonUUID.getPlayerGracefulUUID(pexUser.getName());
                 }
             }

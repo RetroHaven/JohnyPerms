@@ -77,9 +77,11 @@ public class Group implements PermissionsGroup, PermissionsObject, PermissionsAe
             }
         }
         PermissionsGroup[] temp = new PermissionsGroup[count];
+        int insert = 0;
         for (int i = 0; i < inheritance.length; i++) {
             if (plugin.getGroups().containsKey(inheritance[i])) {
-                temp[i] = plugin.getGroups().get(inheritance[i]);
+                temp[insert] = plugin.getGroups().get(inheritance[i]);
+                insert = insert + 1;
             } else {
                 plugin.logMessage(Level.WARNING, "A invalid inheritance group called " + inheritance[i] + " is in the config for " + groupName);
             }
