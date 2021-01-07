@@ -10,8 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 public class Util {
+    private static Pattern p = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
 
     public static HashMap<String, Boolean> getPermissions(JSONArray permissions) {
         HashMap<String, Boolean> temp = new HashMap<>();
@@ -53,6 +55,13 @@ public class Util {
                 return PoseidonUUID.getPlayerUUIDFromCache(name, true);
             case OFFLINE:
                 return PoseidonUUID.getPlayerUUIDFromCache(name, false);
+        }
+        if (p.matcher(name).matches()) {
+            try {
+                return UUID.fromString(name);
+            } catch (IllegalArgumentException exception) {
+                return null;
+            }
         }
         return null;
 
