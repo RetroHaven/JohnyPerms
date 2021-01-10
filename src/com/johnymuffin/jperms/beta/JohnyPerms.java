@@ -162,7 +162,6 @@ public class JohnyPerms extends JavaPlugin {
     public boolean reloadStorage() {
         groups = new HashMap<>();
         users = new HashMap<>();
-        attachments = new HashMap<>();
         allPluginPerms = new HashMap<>();
         detectedPerms = new HashMap<>();
 
@@ -215,8 +214,19 @@ public class JohnyPerms extends JavaPlugin {
             log.info("[" + pluginName + "] Default group set to: " + this.defaultGroup.getName());
         }
         verifyInheritance();
+
+        recalculateAllPlayers();
+
+
         return true;
     }
+
+    public void recalculateAllPlayers() {
+        for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+            this.recalculatePlayer(p);
+        }
+    }
+
 
     public void calculateAllPermissions() {
         log.info("[" + pluginName + "] Loading all permissions for wildcards.");

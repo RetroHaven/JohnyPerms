@@ -127,7 +127,7 @@ public class JohnyPermsCommand implements CommandExecutor {
             commandSender.sendMessage(lang.getMessage("generic_action_completed"));
             return true;
         }
-
+        plugin.recalculateAllPlayers();
         commandSender.sendMessage(lang.getMessage("jperms_user_perm_add_use"));
         return true;
     }
@@ -144,6 +144,7 @@ public class JohnyPermsCommand implements CommandExecutor {
             commandSender.sendMessage(lang.getMessage("generic_action_completed"));
             return true;
         }
+        plugin.recalculateAllPlayers();
         commandSender.sendMessage(lang.getMessage("jperms_user_perm_remove_use"));
         return false;
     }
@@ -168,6 +169,7 @@ public class JohnyPermsCommand implements CommandExecutor {
 
         plugin.getUser(user).setGroup(permissionsGroup);
         commandSender.sendMessage(lang.getMessage("generic_action_completed"));
+        plugin.recalculateAllPlayers();
         return true;
     }
 
