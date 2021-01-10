@@ -156,9 +156,8 @@ public class User implements PermissionsUser, PermissionsObject, PermissionsAest
     }
 
     public void setLastKnownUsername(String lastKnownUsername) {
-        this.lastKnownUsername = lastKnownUsername;
-
         if (this.getGroup() == plugin.getDefaultGroup()) {
+            this.lastKnownUsername = lastKnownUsername;
             return;
         }
         if (this.getLastKnownUsername() != null) {
@@ -166,7 +165,7 @@ public class User implements PermissionsUser, PermissionsObject, PermissionsAest
                 return;
             }
         }
-
+        this.lastKnownUsername = lastKnownUsername;
         this.isModified = true;
     }
 }
