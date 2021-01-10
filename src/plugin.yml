@@ -24,3 +24,7 @@ permissions:
     description: JohnyPerms command
   johnyperms.jperms.plugin:
     description: JohnyPerms command
+  johnyperms.jperms.plugin.save:
+    description: JohnyPerms command
+  johnyperms.jperms.plugin.reload:
+    description: JohnyPerms command

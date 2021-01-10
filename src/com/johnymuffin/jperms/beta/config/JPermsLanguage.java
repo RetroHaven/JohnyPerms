@@ -34,6 +34,7 @@ public class JPermsLanguage extends Configuration {
         map.put("jperms_group_general_use", "&cSorry, that is invalid. Try /jperms group (group) (list/perm/inheritance)");
         map.put("jperms_group_general_unknown", "&cSorry, that group is unknown");
         map.put("jperms_user_perm_remove_use", "&cSorry, that is invalid. Try /jperms user (username/uuid) perm remove (perm)");
+        map.put("jperms_plugin_use", "&cSorry, that is invalid. Try /jperms plugin (reload/save)");
 
     }
 

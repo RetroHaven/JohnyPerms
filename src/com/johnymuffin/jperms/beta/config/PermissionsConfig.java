@@ -23,7 +23,7 @@ public class PermissionsConfig {
     private JohnyPerms plugin;
     private boolean isNew = false;
 
-    public PermissionsConfig(JohnyPerms plugin) {
+    public PermissionsConfig(JohnyPerms plugin) throws ParseException {
         this.configFile = new File(plugin.getDataFolder(), "permissions.json");
         this.plugin = plugin;
         //Create directory
@@ -36,10 +36,7 @@ public class PermissionsConfig {
             try {
                 JSONParser parser = new JSONParser();
                 jsonConfig = (JSONObject) parser.parse(new FileReader(configFile));
-            } catch (ParseException e) {
-                System.out.println("Failed to load config file.");
-                throw new RuntimeException(e + ": " + e.getMessage());
-            } catch (IOException e) {
+            }  catch (IOException e) {
                 throw new RuntimeException(e + ": " + e.getMessage());
             }
         }

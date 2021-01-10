@@ -16,6 +16,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 
 import java.io.File;
 import java.util.*;
@@ -64,7 +65,14 @@ public class JohnyPerms extends JavaPlugin {
 
 
         log.info("[" + pluginName + "] Loading Permissions Database.");
-        this.permissionsConfig = new PermissionsConfig(plugin);
+        try {
+            this.permissionsConfig = new PermissionsConfig(plugin);
+        } catch (ParseException e) {
+            log.log(Level.SEVERE, "Failed to load permissions file", e);
+            ;
+            Bukkit.getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
         if (permissionsConfig.isNew()) {
             log.info("[" + pluginName + "] Generating default group as it is first load.");
             PermissionsGroup group = new Group(plugin, "default", new JSONObject());
@@ -148,6 +156,65 @@ public class JohnyPerms extends JavaPlugin {
         }
     }
 
+    public boolean reloadStorage() {
+        groups = new HashMap<>();
+        users = new HashMap<>();
+        attachments = new HashMap<>();
+        allPluginPerms = new HashMap<>();
+        detectedPerms = new HashMap<>();
+
+        log.info("[" + pluginName + "] Loading Language File.");
+        this.language = new JPermsLanguage(new File(plugin.getDataFolder(), "language.yml"));
+        log.info("[" + pluginName + "] Loading plugin settings.");
+        config = new JPConfig(new File(plugin.getDataFolder(), "config.yml"));
+        if (config.isNew()) {
+            logMessage(Level.INFO, "JohnyPerms has started for the first time. Please set your config appropriately and then proceed.");
+            Bukkit.shutdown();
+            config = new JPConfig(new File(plugin.getDataFolder(), "config.yml"));
+        }
+
+
+        log.info("[" + pluginName + "] Loading Permissions Database.");
+        try {
+            this.permissionsConfig = new PermissionsConfig(plugin);
+        } catch (ParseException e) {
+            log.log(Level.SEVERE, "Failed to load permissions file", e);
+            ;
+            Bukkit.getServer().getPluginManager().disablePlugin(this);
+            return false;
+        }
+        if (permissionsConfig.isNew()) {
+            log.info("[" + pluginName + "] Generating default group as it is first load.");
+            PermissionsGroup group = new Group(plugin, "default", new JSONObject());
+            group.setIsDefaultGroup(true);
+            group.setSaveStatus(true);
+            groups.put("default", group);
+        }
+        //Find all possible permissions registered
+        calculateAllPermissions();
+        log.info("[" + pluginName + "] Loading Groups.");
+        for (String groupName : permissionsConfig.getGroupNames()) {
+            PermissionsGroup group = permissionsConfig.getGroup(groupName);
+            if (group == null) {
+                log.info("[" + pluginName + "] group " + groupName + " failed to load, shutting down.");
+                Bukkit.getServer().getPluginManager().disablePlugin(this);
+                return false;
+            }
+            groups.put(groupName, group);
+            log.info("[" + pluginName + "] Loaded group " + groupName);
+        }
+        scanForDefault();
+        if (this.defaultGroup == null) {
+            log.info("[" + pluginName + "] Failed to find a default group, shutting down.");
+            Bukkit.getServer().getPluginManager().disablePlugin(this);
+            return false;
+        } else {
+            log.info("[" + pluginName + "] Default group set to: " + this.defaultGroup.getName());
+        }
+        verifyInheritance();
+        return true;
+    }
+
     public void calculateAllPermissions() {
         log.info("[" + pluginName + "] Loading all permissions for wildcards.");
         allPluginPerms = new HashMap<>();
@@ -191,26 +258,30 @@ public class JohnyPerms extends JavaPlugin {
         }
     }
 
+    public void save(boolean users, boolean groups, boolean settings) {
+        if (users) {
+            for (Map.Entry<UUID, PermissionsUser> entry : this.users.entrySet()) {
+                if (entry.getValue().isSaving()) {
+                    this.permissionsConfig.saveUser(entry.getValue());
+                    log.info("[" + pluginName + "] Saved user: " + entry.getKey());
+                }
+            }
+        }
+        if (groups) {
+            for (Map.Entry<String, PermissionsGroup> entry : this.groups.entrySet()) {
+                if (entry.getValue().isSaving()) {
+                    this.permissionsConfig.saveGroup(entry.getValue());
+                    log.info("[" + pluginName + "] Saved group called: " + entry.getKey());
+                }
+            }
+        }
+    }
 
     @Override
     public void onDisable() {
         log.info("[" + pluginName + "] Plugin disabling.");
         this.johnyPermsAPI = null;
-        for (Map.Entry<String, PermissionsGroup> entry : this.groups.entrySet()) {
-            if (entry.getValue().isSaving()) {
-                this.permissionsConfig.saveGroup(entry.getValue());
-                log.info("[" + pluginName + "] Saved group called: " + entry.getKey());
-            }
-        }
-
-        for (Map.Entry<UUID, PermissionsUser> entry : this.users.entrySet()) {
-            if (entry.getValue().isSaving()) {
-                this.permissionsConfig.saveUser(entry.getValue());
-                log.info("[" + pluginName + "] Saved user: " + entry.getKey());
-            }
-        }
-
-
+        save(true, true, true);
         //Remove permission attachments
         for (Player p : Bukkit.getServer().getOnlinePlayers()) {
             removePlayer(p);

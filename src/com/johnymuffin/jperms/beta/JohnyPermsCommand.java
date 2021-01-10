@@ -220,7 +220,42 @@ public class JohnyPermsCommand implements CommandExecutor {
             commandSender.sendMessage(lang.getMessage("no_permission"));
             return true;
         }
-        return false;
+        if (strings.length > 1) {
+            String subcommand = strings[1];
+            if (subcommand.equalsIgnoreCase("reload")) return pluginReloadCommand(commandSender, command, s, strings);
+            if (subcommand.equalsIgnoreCase("save")) return pluginSaveCommand(commandSender, command, s, strings);
+        }
+        commandSender.sendMessage(lang.getMessage("jperms_plugin_use"));
+        return true;
+    }
+
+    private boolean pluginReloadCommand(CommandSender commandSender, Command command, String s, String[] strings) {
+        if (!isAuthorized(commandSender, "johnyperms.jperms.plugin.reload")) {
+            commandSender.sendMessage(lang.getMessage("no_permission"));
+            return true;
+        }
+        long unixStart = System.currentTimeMillis();
+        if (!plugin.reloadStorage()) {
+            commandSender.sendMessage(ChatColor.RED + "A severe error occurred while reloading, and JPerms is shutting down immediately. Please check console for details.");
+            return true;
+        }
+        long timeTaken = System.currentTimeMillis() - unixStart;
+        commandSender.sendMessage(ChatColor.RED + "Reload completed in " + timeTaken + " milliseconds.");
+
+        return true;
+    }
+
+    private boolean pluginSaveCommand(CommandSender commandSender, Command command, String s, String[] strings) {
+        if (!isAuthorized(commandSender, "johnyperms.jperms.plugin.save")) {
+            commandSender.sendMessage(lang.getMessage("no_permission"));
+            return true;
+        }
+        long unixStart = System.currentTimeMillis();
+        plugin.save(true, true, true);
+        long timeTaken = System.currentTimeMillis() - unixStart;
+        commandSender.sendMessage(ChatColor.RED + "Save completed in " + timeTaken + " milliseconds.");
+
+        return true;
     }
 
     private boolean isAuthorized(CommandSender commandSender, String permission) {
