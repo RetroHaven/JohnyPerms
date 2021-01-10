@@ -360,6 +360,11 @@ public class JohnyPerms extends JavaPlugin {
     public void recalculatePlayer(Player p) {
         //Remove attachment if a phantom one exists
         if (plugin.getAttachments().containsKey(p.getUniqueId())) {
+            try {
+                p.removeAttachment(plugin.getAttachments().get(p.getUniqueId()));
+            } catch (Exception e) {
+                
+            }
             plugin.getAttachments().remove(p.getUniqueId());
         }
         PermissionAttachment attachment = p.addAttachment(plugin);
