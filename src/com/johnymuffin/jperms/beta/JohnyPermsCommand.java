@@ -52,11 +52,13 @@ public class JohnyPermsCommand implements CommandExecutor {
             uuid = getUUIDFromUsername(rawPlayerName); //We need to find a UUID for a user command
             //Check JPerms UUID cache which is cap insensitive
             if(uuid == null) {
-                plugin.getJpuuidCache().getUUIDFromUsername(rawPlayerName);
+                uuid = plugin.getJpuuidCache().getUUIDFromUsername(rawPlayerName);
             }
             if (uuid == null) {
                 //Server couldn't find an associated player
-                commandSender.sendMessage(lang.getMessage("player_not_found_full"));
+                String message = lang.getMessage("player_not_found_full");
+                message = message.replace("%username%", rawPlayerName);
+                commandSender.sendMessage(message);
                 return true;
             }
         }

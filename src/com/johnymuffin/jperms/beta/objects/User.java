@@ -16,16 +16,20 @@ import static com.johnymuffin.jperms.beta.util.Util.hasPermissionOnMap;
 
 public class User implements PermissionsUser, PermissionsObject, PermissionsAesthetics, SavableObject {
     private UUID uuid;
+    private String lastKnownUsername;
     private HashMap<String, Boolean> permissions = new HashMap<>();
     private JohnyPerms plugin;
     private PermissionsGroup group;
     private boolean isModified = false;
+    private boolean isNew;
 
-    public User(JohnyPerms plugin, JSONObject playerData, UUID uuid) {
+    public User(JohnyPerms plugin, JSONObject playerData, UUID uuid, boolean isNew) {
         this.plugin = plugin;
+        this.isNew = isNew;
         this.permissions = Util.getPermissions((JSONArray) playerData.getOrDefault("permissions", new JSONArray()));
         this.uuid = uuid;
         String rawGroupName = String.valueOf(playerData.getOrDefault("group", plugin.getDefaultGroup().getName()));
+        lastKnownUsername = String.valueOf(playerData.get("lastKnownUsername"));
         if (plugin.getGroups().containsKey(rawGroupName)) {
             this.group = plugin.getGroups().get(rawGroupName);
         } else {
@@ -37,6 +41,7 @@ public class User implements PermissionsUser, PermissionsObject, PermissionsAest
     public User(JohnyPerms plugin, UUID uuid) {
         this.plugin = plugin;
         this.uuid = uuid;
+        this.isNew = true;
     }
 
     public UUID getUUID() {
@@ -144,5 +149,24 @@ public class User implements PermissionsUser, PermissionsObject, PermissionsAest
 
     public void setSaveStatus(boolean value) {
         this.isModified = value;
+    }
+
+    public String getLastKnownUsername() {
+        return lastKnownUsername;
+    }
+
+    public void setLastKnownUsername(String lastKnownUsername) {
+        this.lastKnownUsername = lastKnownUsername;
+
+        if (this.getGroup() == plugin.getDefaultGroup()) {
+            return;
+        }
+        if (this.getLastKnownUsername() != null) {
+            if (this.getLastKnownUsername().equals(lastKnownUsername)) {
+                return;
+            }
+        }
+
+        this.isModified = true;
     }
 }

@@ -26,6 +26,8 @@ public class JohnyPermsListener implements Listener {
 
         //Add to cache
         plugin.getJpuuidCache().addUser(event.getPlayer().getName(), event.getPlayer().getUniqueId());
+        //Save username to user
+        plugin.getUser(event.getPlayer().getUniqueId()).setLastKnownUsername(event.getPlayer().getName());
 
         //Override PermissibleBase
         if (plugin.getConfig().getConfigBoolean("super-perms-override.enable")) {

@@ -47,7 +47,7 @@ public class PermissionsConfig {
         JSONObject tmp = getPlayers();
         if (tmp.containsKey(String.valueOf(uuid))) {
             try {
-                PermissionsUser user = new User(plugin, (JSONObject) tmp.get(String.valueOf(uuid)), uuid);
+                PermissionsUser user = new User(plugin, (JSONObject) tmp.get(String.valueOf(uuid)), uuid, false);
                 return user;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -70,6 +70,9 @@ public class PermissionsConfig {
         tmp.put("permissions", tmp2);
         if (permissionsUser.getPrefix() != null && !permissionsUser.getPrefix().isEmpty()) {
             tmp.put("prefix", permissionsUser.getPrefix());
+        }
+        if(permissionsUser.getLastKnownUsername() != null) {
+            tmp.put("lastKnownUsername", permissionsUser.getLastKnownUsername());
         }
         if (permissionsUser.getSuffix() != null && !permissionsUser.getSuffix().isEmpty()) {
             tmp.put("suffix", permissionsUser.getSuffix());

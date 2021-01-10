@@ -17,5 +17,9 @@ public interface PermissionsUser extends PermissionsAesthetics, PermissionsObjec
 
     public boolean hasPermissionSomehow(String permission, boolean deepSearch);
 
+    public String getLastKnownUsername();
+
+    public void setLastKnownUsername(String lastKnownUsername);
+
 
 }
