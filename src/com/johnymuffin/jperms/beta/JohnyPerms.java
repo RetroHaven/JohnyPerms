@@ -1,6 +1,7 @@
 package com.johnymuffin.jperms.beta;
 
 import com.johnymuffin.jperms.beta.config.JPConfig;
+import com.johnymuffin.jperms.beta.config.JPUUIDCache;
 import com.johnymuffin.jperms.beta.config.JPermsLanguage;
 import com.johnymuffin.jperms.beta.config.PermissionsConfig;
 import com.johnymuffin.jperms.beta.importer.PexImport;
@@ -43,6 +44,7 @@ public class JohnyPerms extends JavaPlugin {
     private HashMap<String, Boolean> detectedPerms = new HashMap<>(); //All used, however, unregistered permissions
     private JohnyPermsAPI johnyPermsAPI;
     private HashMap<UUID, JPPermissibleBase> playerInjections = new HashMap<>(); //All playerInjections
+    private JPUUIDCache jpuuidCache;
     private JPConfig config;
 
 
@@ -51,6 +53,7 @@ public class JohnyPerms extends JavaPlugin {
         plugin = this;
         log = this.getServer().getLogger();
         pdf = this.getDescription();
+        jpuuidCache = new JPUUIDCache(plugin);
         pluginName = pdf.getName();
         log.info("[" + pluginName + "] Is Loading, Version: " + pdf.getVersion());
         log.info("[" + pluginName + "] Loading Language File.");
@@ -228,6 +231,10 @@ public class JohnyPerms extends JavaPlugin {
         }
     }
 
+    public JPUUIDCache getJpuuidCache() {
+        return jpuuidCache;
+    }
+
     public void removeDuplicatePermissions(PermissionsGroup group, boolean log) {
         //Remove duplicate permissions normally caused by a wildcard
         HashMap<String, Boolean> mainGroupPerms = group.getPermissions(false);
@@ -274,6 +281,9 @@ public class JohnyPerms extends JavaPlugin {
                     log.info("[" + pluginName + "] Saved group called: " + entry.getKey());
                 }
             }
+        }
+        if (settings) {
+            jpuuidCache.saveData();
         }
     }
 
