@@ -1,0 +1,38 @@
+name: JPerms
+main: com.johnymuffin.jperms.beta.JohnyPerms
+author: RhysB
+version: 1.0.1
+commands:
+  jperms:
+    description: Commands for manipulating permissions.
+permissions:
+  johnyperms.jperms.command:
+    description: JohnyPerms command
+  johnyperms.jperms.user:
+    description: JohnyPerms command
+  johnyperms.jperms.user.perm:
+    description: JohnyPerms command
+  johnyperms.jperms.user.perm.list:
+    description: JohnyPerms command
+  johnyperms.jperms.user.perm.add:
+    description: JohnyPerms command
+  johnyperms.jperms.user.perm.remove:
+    description: JohnyPerms command
+  johnyperms.jperms.user.group:
+    description: JohnyPerms command
+  johnyperms.jperms.group:
+    description: JohnyPerms command
+  johnyperms.jperms.plugin:
+    description: JohnyPerms command
+  johnyperms.jperms.plugin.save:
+    description: JohnyPerms command
+  johnyperms.jperms.plugin.reload:
+    description: JohnyPerms command
+  johnyperms.jperms.group.prefix:
+    description: JohnyPerms group prefix command
+  johnyperms.jperms.group.suffix:
+    description: JohnyPerms group suffix command
+  johnyperms.jperms.group.inheritance:
+    description: JohnyPerms group inheritance command
+  johnyperms.jperms.user.title:
+    description: JohnyPerms user title command
